@@ -245,10 +245,14 @@ bool trust_pir = true;
 int pir_valid_counter = 0; // because sometimes the pir data gets 1
 void loop()
 {
+  if (millis()%1000<5)
+  {
+    send_formatted_distance_message(0,0,0);
+  }
   //long start=millis();
   if (trust_pir)
   {
-    if ( analogRead(PIR_DATA) == 1)
+    if ( digitalRead(PIR_DATA) == 1)
     {
       pir_valid_counter++;
       // start mesuarung if pir read and stop trust pir and take time
@@ -265,7 +269,7 @@ void loop()
     else
       //if the pir soesnt read, update your watch
     {
-      if ((millis() + delay_time) % (RESET_INTERVAL_SEC * MS_IN_SEC) > long((RESET_INTERVAL_SEC - UPDATE_MARGIN)*MS_IN_SEC) || (millis() + delay_time) % (RESET_INTERVAL_SEC * MS_IN_SEC) < long(UPDATE_MARGIN * MS_IN_SEC))
+      if ((millis() % (RESET_INTERVAL_SEC * MS_IN_SEC) > long((RESET_INTERVAL_SEC - UPDATE_MARGIN)*MS_IN_SEC) || (millis() % (RESET_INTERVAL_SEC * MS_IN_SEC) < long(UPDATE_MARGIN * MS_IN_SEC))))
         // in the update margain
       {
         digitalWrite(VCC_RX, HIGH);
@@ -277,7 +281,7 @@ void loop()
           delay(50);
         }
 
-        else if (((millis() + delay_time) % (RESET_INTERVAL_SEC * MS_IN_SEC) > 0.9 * UPDATE_MARGIN * MS_IN_SEC) && ((millis() + delay_time) > RESET_INTERVAL_SEC * MS_IN_SEC) )
+        else if ((millis() % (RESET_INTERVAL_SEC * MS_IN_SEC) > 0.9 * UPDATE_MARGIN * MS_IN_SEC) && (millis()  > RESET_INTERVAL_SEC * MS_IN_SEC) )
         {
           // if time exceeded
           //0.9 so we get that it wouldn't pass that
@@ -292,6 +296,7 @@ void loop()
   else
     // i dont trust the pir (because i read from him) i start the event
   {
+    
     if ( (millis() - t_correction) < MEASURING_TIME_SEC * MS_IN_SEC ) //sonar measuring time
     {
       Serial.println("measuring!");
